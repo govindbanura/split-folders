@@ -72,11 +72,12 @@ def ratio(
     ratio=(0.8, 0.1, 0.1),
     group_prefix=None,
     move=False,
+    formats = None
 ):
     if not round(sum(ratio), 5) == 1:  # round for floating imprecision
-        raise ValueError("The sums of `ratio` is over 1.")
+        raise ValueError("The sums of ratio is over 1.")
     if not len(ratio) in (2, 3):
-        raise ValueError("`ratio` should")
+        raise ValueError("ratio should")
 
     check_input_format(input)
 
@@ -92,6 +93,7 @@ def ratio(
             prog_bar if use_tqdm else None,
             group_prefix,
             move,
+            formats
         )
 
     if use_tqdm:
@@ -106,12 +108,13 @@ def fixed(
     oversample=False,
     group_prefix=None,
     move=False,
+    formats = None
 ):
     if isinstance(fixed, int):
         fixed = [fixed]
 
     if not len(fixed) in (1, 2, 3):
-        raise ValueError("`fixed` should be an integer or a list of 2 or 3 integers")
+        raise ValueError("fixed should be an integer or a list of 2 or 3 integers")
 
     if len(fixed) == 3 and oversample:
         raise ValueError(
@@ -135,6 +138,7 @@ def fixed(
                 prog_bar if use_tqdm else None,
                 group_prefix,
                 move,
+                formats
             )
         )
 
@@ -155,7 +159,7 @@ def fixed(
     for num_items, class_dir in iteration:
         class_name = path.split(class_dir)[1]
         full_path = path.join(output, "train", class_name)
-        train_files = list_files(full_path)
+        train_files = list_files(full_path, formats)
 
         if group_prefix is not None:
             train_files = group_by_prefix(train_files, group_prefix)
@@ -174,7 +178,7 @@ def fixed(
 
 def group_by_prefix(files, len_pairs):
     """
-    Split files into groups of len `len_pairs` based on their prefix.
+    Split files into groups of len len_pairs based on their prefix.
     """
     results = []
     results_set = set()  # for fast lookup, only file names
@@ -210,13 +214,13 @@ def group_by_prefix(files, len_pairs):
     return results
 
 
-def setup_files(class_dir, seed, group_prefix=None):
+def setup_files(class_dir, seed, group_prefix=None, formats=None):
     """
     Returns shuffeld list of filenames
     """
     random.seed(seed)  # make sure its reproducible
 
-    files = list_files(class_dir)
+    files = list_files(class_dir, formats)
 
     if group_prefix is not None:
         files = group_by_prefix(files, group_prefix)
@@ -226,11 +230,11 @@ def setup_files(class_dir, seed, group_prefix=None):
     return files
 
 
-def split_class_dir_ratio(class_dir, output, ratio, seed, prog_bar, group_prefix, move):
+def split_class_dir_ratio(class_dir, output, ratio, seed, prog_bar, group_prefix, move, formats):
     """
     Splits a class folder
     """
-    files = setup_files(class_dir, seed, group_prefix)
+    files = setup_files(class_dir, seed, group_prefix, formats)
 
     # the data was shuffled already
     split_train_idx = int(ratio[0] * len(files))
@@ -240,11 +244,11 @@ def split_class_dir_ratio(class_dir, output, ratio, seed, prog_bar, group_prefix
     copy_files(li, class_dir, output, prog_bar, move)
 
 
-def split_class_dir_fixed(class_dir, output, fixed, seed, prog_bar, group_prefix, move):
+def split_class_dir_fixed(class_dir, output, fixed, seed, prog_bar, group_prefix, move, formats):
     """
     Splits a class folder and returns the total number of files
     """
-    files = setup_files(class_dir, seed, group_prefix)
+    files = setup_files(class_dir, seed, group_prefix, formats)
 
     if not len(files) >= sum(fixed):
         raise ValueError(

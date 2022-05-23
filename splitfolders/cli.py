@@ -10,7 +10,7 @@ def run():
     parser.add_argument(
         "--output",
         default="output",
-        help="directory where to write the resulting split folders, defaults to `output`",
+        help="directory where to write the resulting split folders, defaults to output",
     )
     parser.add_argument(
         "--seed",
@@ -22,13 +22,13 @@ def run():
         "--ratio",
         nargs="+",
         type=float,
-        help="the ratio to split. e.g. for train/val/test `.8 .1 .1` or for train/val `.8 .2`",
+        help="the ratio to split. e.g. for train/val/test .8 .1 .1 or for train/val .8 .2",
     )
     parser.add_argument(
         "--fixed",
         nargs="+",
         type=int,
-        help="set the absolute number of items per validation/test set. The remaining items get to the training. e.g. for train/val/test `100 100` or for train/val `100`. Set 3 values, e.g. `300 100 100`, to limit the number of training values.",
+        help="set the absolute number of items per validation/test set. The remaining items get to the training. e.g. for train/val/test 100 100 or for train/val 100. Set 3 values, e.g. 300 100 100, to limit the number of training values.",
     )
     parser.add_argument(
         "--oversample",
@@ -50,12 +50,19 @@ def run():
         "input",
         help="directory with the input data. The directory needs to have the labels as sub-directories. In those sub-directories are then the actual files that gets split.",
     )
+    parser.add_argument(
+        "--formats",
+        nargs="+",
+        type=str,
+        default = None,
+        help="specify the file format(s) which should be considered for spliting the data e.g. .png .jpeg .jpg",
+    )
 
     args = parser.parse_args()
 
     if args.ratio:
         ratio(
-            args.input, args.output, args.seed, args.ratio, args.group_prefix, args.move
+            args.input, args.output, args.seed, args.ratio, args.group_prefix, args.move, args.formats
         )
     else:
         if args.fixed:
@@ -67,8 +74,9 @@ def run():
                 args.oversample,
                 args.group_prefix,
                 args.move,
+                args.formats
             )
         else:
             print(
-                "Please specify either your `--ratio` or your `--fixed` number of items for the split. see -h for more help."
+                "Please specify either your --ratio or your --fixed number of items for the split. see -h for more help."
             )
