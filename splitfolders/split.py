@@ -65,6 +65,15 @@ def check_input_format(input):
         )
 
 
+def valid_extensions(formats):
+    """
+    Check if an extension starts with.
+    """
+    invalid_ext = [s for s in formats if not s.startswith('.')]
+    if invalid_ext:
+        raise ValueError (f"Extensions must start with '.' {invalid_ext} is/are the invalid extension(s).")
+
+
 def ratio(
     input,
     output="output",
@@ -80,6 +89,7 @@ def ratio(
         raise ValueError("ratio should")
 
     check_input_format(input)
+    valid_extensions(formats)
 
     if use_tqdm:
         prog_bar = tqdm(desc=f"Copying files", unit=" files")
@@ -122,7 +132,8 @@ def fixed(
         )
 
     check_input_format(input)
-
+    valid_extensions(formats)
+    
     if use_tqdm:
         prog_bar = tqdm(desc=f"Copying files", unit=" files")
 
